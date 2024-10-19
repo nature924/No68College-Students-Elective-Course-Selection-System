@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.XuankexianzhiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.xuankexianzhi_number as xuankexianzhiNumber
+        ,a.kaishi_time as kaishiTime
+        ,a.jieshu_time as jieshuTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.XuankexianzhiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM xuankexianzhi  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.xuankexianzhiNumberStart != null and params.xuankexianzhiNumberStart != ''">
+                <![CDATA[  and a.xuankexianzhi_number >= #{params.xuankexianzhiNumberStart}   ]]>
+            </if>
+            <if test="params.xuankexianzhiNumberEnd != null and params.xuankexianzhiNumberEnd != ''">
+                <![CDATA[  and a.xuankexianzhi_number <= #{params.xuankexianzhiNumberEnd}   ]]>
+            </if>
+             <if test="params.xuankexianzhiNumber != null and params.xuankexianzhiNumber != ''">
+                and a.xuankexianzhi_number = #{params.xuankexianzhiNumber}
+             </if>
+            <if test=" params.kaishiTimeStart != '' and params.kaishiTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.kaishi_time) >= UNIX_TIMESTAMP(#{params.kaishiTimeStart}) ]]>
+            </if>
+            <if test=" params.kaishiTimeEnd != '' and params.kaishiTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.kaishi_time) <= UNIX_TIMESTAMP(#{params.kaishiTimeEnd}) ]]>
+            </if>
+            <if test=" params.jieshuTimeStart != '' and params.jieshuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.jieshu_time) >= UNIX_TIMESTAMP(#{params.jieshuTimeStart}) ]]>
+            </if>
+            <if test=" params.jieshuTimeEnd != '' and params.jieshuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.jieshu_time) <= UNIX_TIMESTAMP(#{params.jieshuTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

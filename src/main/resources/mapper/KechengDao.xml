@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.KechengDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.kecheng_uuid_number as kechengUuidNumber
+        ,a.kecheng_name as kechengName
+        ,a.kecheng_types as kechengTypes
+        ,a.xuenfen_number as xuenfenNumber
+        ,a.kecheng_content as kechengContent
+        ,a.kecheng_delete as kechengDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.KechengView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM kecheng  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.kechengUuidNumber != '' and params.kechengUuidNumber != null and params.kechengUuidNumber != 'null' ">
+                and a.kecheng_uuid_number like CONCAT('%',#{params.kechengUuidNumber},'%')
+            </if>
+            <if test=" params.kechengName != '' and params.kechengName != null and params.kechengName != 'null' ">
+                and a.kecheng_name like CONCAT('%',#{params.kechengName},'%')
+            </if>
+            <if test="params.kechengTypes != null and params.kechengTypes != ''">
+                and a.kecheng_types = #{params.kechengTypes}
+            </if>
+            <if test="params.xuenfenNumberStart != null and params.xuenfenNumberStart != ''">
+                <![CDATA[  and a.xuenfen_number >= #{params.xuenfenNumberStart}   ]]>
+            </if>
+            <if test="params.xuenfenNumberEnd != null and params.xuenfenNumberEnd != ''">
+                <![CDATA[  and a.xuenfen_number <= #{params.xuenfenNumberEnd}   ]]>
+            </if>
+             <if test="params.xuenfenNumber != null and params.xuenfenNumber != ''">
+                and a.xuenfen_number = #{params.xuenfenNumber}
+             </if>
+            <if test=" params.kechengContent != '' and params.kechengContent != null and params.kechengContent != 'null' ">
+                and a.kecheng_content like CONCAT('%',#{params.kechengContent},'%')
+            </if>
+            <if test="params.kechengDeleteStart != null and params.kechengDeleteStart != ''">
+                <![CDATA[  and a.kecheng_delete >= #{params.kechengDeleteStart}   ]]>
+            </if>
+            <if test="params.kechengDeleteEnd != null and params.kechengDeleteEnd != ''">
+                <![CDATA[  and a.kecheng_delete <= #{params.kechengDeleteEnd}   ]]>
+            </if>
+             <if test="params.kechengDelete != null and params.kechengDelete != ''">
+                and a.kecheng_delete = #{params.kechengDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

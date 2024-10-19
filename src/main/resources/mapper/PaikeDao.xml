@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.PaikeDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.kecheng_id as kechengId
+        ,a.shangke_time as shangkeTime
+        ,a.xiake_time as xiakeTime
+        ,a.jieke_types as jiekeTypes
+        ,a.xueqi_types as xueqiTypes
+        ,a.xingqi_types as xingqiTypes
+        ,a.paike_address as paikeAddress
+        ,a.jiaoshi_id as jiaoshiId
+        ,a.paike_delete as paikeDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.PaikeView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,jiaoshi.jiaoshi_uuid_number as jiaoshiUuidNumber
+        ,jiaoshi.jiaoshi_name as jiaoshiName
+        ,jiaoshi.jiaoshi_photo as jiaoshiPhoto
+        ,jiaoshi.jiaoshi_phone as jiaoshiPhone
+        ,jiaoshi.jiaoshi_email as jiaoshiEmail
+        ,jiaoshi.banji_types as banjiTypes
+        ,jiaoshi.jiaoshi_delete as jiaoshiDelete
+        ,kecheng.kecheng_uuid_number as kechengUuidNumber
+        ,kecheng.kecheng_name as kechengName
+        ,kecheng.kecheng_types as kechengTypes
+        ,kecheng.xuenfen_number as xuenfenNumber
+        ,kecheng.kecheng_content as kechengContent
+        ,kecheng.kecheng_delete as kechengDelete
+
+        FROM paike  a
+        left JOIN jiaoshi jiaoshi ON a.jiaoshi_id = jiaoshi.id
+        left JOIN kecheng kecheng ON a.kecheng_id = kecheng.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.kechengId != null and params.kechengId != ''">
+                and (
+                    a.kecheng_id = #{params.kechengId}
+                )
+            </if>
+            <if test=" params.shangkeTimeStart != '' and params.shangkeTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.shangke_time) >= UNIX_TIMESTAMP(#{params.shangkeTimeStart}) ]]>
+            </if>
+            <if test=" params.shangkeTimeEnd != '' and params.shangkeTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.shangke_time) <= UNIX_TIMESTAMP(#{params.shangkeTimeEnd}) ]]>
+            </if>
+            <if test=" params.xiakeTimeStart != '' and params.xiakeTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.xiake_time) >= UNIX_TIMESTAMP(#{params.xiakeTimeStart}) ]]>
+            </if>
+            <if test=" params.xiakeTimeEnd != '' and params.xiakeTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.xiake_time) <= UNIX_TIMESTAMP(#{params.xiakeTimeEnd}) ]]>
+            </if>
+            <if test="params.jiekeTypes != null and params.jiekeTypes != ''">
+                and a.jieke_types = #{params.jiekeTypes}
+            </if>
+            <if test="params.xueqiTypes != null and params.xueqiTypes != ''">
+                and a.xueqi_types = #{params.xueqiTypes}
+            </if>
+            <if test="params.xingqiTypes != null and params.xingqiTypes != ''">
+                and a.xingqi_types = #{params.xingqiTypes}
+            </if>
+            <if test=" params.paikeAddress != '' and params.paikeAddress != null and params.paikeAddress != 'null' ">
+                and a.paike_address like CONCAT('%',#{params.paikeAddress},'%')
+            </if>
+            <if test="params.jiaoshiId != null and params.jiaoshiId != ''">
+                and (
+                    a.jiaoshi_id = #{params.jiaoshiId}
+                )
+            </if>
+            <if test="params.paikeDeleteStart != null and params.paikeDeleteStart != ''">
+                <![CDATA[  and a.paike_delete >= #{params.paikeDeleteStart}   ]]>
+            </if>
+            <if test="params.paikeDeleteEnd != null and params.paikeDeleteEnd != ''">
+                <![CDATA[  and a.paike_delete <= #{params.paikeDeleteEnd}   ]]>
+            </if>
+             <if test="params.paikeDelete != null and params.paikeDelete != ''">
+                and a.paike_delete = #{params.paikeDelete}
+             </if>
+
+                <!-- 判断教师的id不为空 -->
+            <if test=" params.jiaoshiIdNotNull != '' and params.jiaoshiIdNotNull != null and params.jiaoshiIdNotNull != 'null' ">
+                and a.jiaoshi_id IS NOT NULL
+            </if>
+            <if test=" params.jiaoshiUuidNumber != '' and params.jiaoshiUuidNumber != null and params.jiaoshiUuidNumber != 'null' ">
+                and jiaoshi.jiaoshi_uuid_number like CONCAT('%',#{params.jiaoshiUuidNumber},'%')
+            </if>
+            <if test=" params.jiaoshiName != '' and params.jiaoshiName != null and params.jiaoshiName != 'null' ">
+                and jiaoshi.jiaoshi_name like CONCAT('%',#{params.jiaoshiName},'%')
+            </if>
+            <if test=" params.jiaoshiPhone != '' and params.jiaoshiPhone != null and params.jiaoshiPhone != 'null' ">
+                and jiaoshi.jiaoshi_phone like CONCAT('%',#{params.jiaoshiPhone},'%')
+            </if>
+            <if test=" params.jiaoshiEmail != '' and params.jiaoshiEmail != null and params.jiaoshiEmail != 'null' ">
+                and jiaoshi.jiaoshi_email like CONCAT('%',#{params.jiaoshiEmail},'%')
+            </if>
+            <if test="params.banjiTypes != null  and params.banjiTypes != ''">
+                and jiaoshi.banji_types = #{params.banjiTypes}
+            </if>
+
+            <if test="params.jiaoshiDeleteStart != null  and params.jiaoshiDeleteStart != '' ">
+                <![CDATA[  and jiaoshi.jiaoshi_delete >= #{params.jiaoshiDeleteStart}   ]]>
+            </if>
+            <if test="params.jiaoshiDeleteEnd != null  and params.jiaoshiDeleteEnd != '' ">
+                <![CDATA[  and jiaoshi.jiaoshi_delete <= #{params.jiaoshiDeleteEnd}   ]]>
+            </if>
+            <if test="params.jiaoshiDelete != null  and params.jiaoshiDelete != '' ">
+                and jiaoshi.jiaoshi_delete = #{params.jiaoshiDelete}
+            </if>
+                <!-- 判断课程信息的id不为空 -->
+            <if test=" params.kechengIdNotNull != '' and params.kechengIdNotNull != null and params.kechengIdNotNull != 'null' ">
+                and a.kecheng_id IS NOT NULL
+            </if>
+            <if test=" params.kechengUuidNumber != '' and params.kechengUuidNumber != null and params.kechengUuidNumber != 'null' ">
+                and kecheng.kecheng_uuid_number like CONCAT('%',#{params.kechengUuidNumber},'%')
+            </if>
+            <if test=" params.kechengName != '' and params.kechengName != null and params.kechengName != 'null' ">
+                and kecheng.kecheng_name like CONCAT('%',#{params.kechengName},'%')
+            </if>
+            <if test="params.kechengTypes != null  and params.kechengTypes != ''">
+                and kecheng.kecheng_types = #{params.kechengTypes}
+            </if>
+
+            <if test="params.xuenfenNumberStart != null  and params.xuenfenNumberStart != '' ">
+                <![CDATA[  and kecheng.xuenfen_number >= #{params.xuenfenNumberStart}   ]]>
+            </if>
+            <if test="params.xuenfenNumberEnd != null  and params.xuenfenNumberEnd != '' ">
+                <![CDATA[  and kecheng.xuenfen_number <= #{params.xuenfenNumberEnd}   ]]>
+            </if>
+            <if test="params.xuenfenNumber != null  and params.xuenfenNumber != '' ">
+                and kecheng.xuenfen_number = #{params.xuenfenNumber}
+            </if>
+            <if test=" params.kechengContent != '' and params.kechengContent != null and params.kechengContent != 'null' ">
+                and kecheng.kecheng_content like CONCAT('%',#{params.kechengContent},'%')
+            </if>
+            <if test="params.kechengDeleteStart != null  and params.kechengDeleteStart != '' ">
+                <![CDATA[  and kecheng.kecheng_delete >= #{params.kechengDeleteStart}   ]]>
+            </if>
+            <if test="params.kechengDeleteEnd != null  and params.kechengDeleteEnd != '' ">
+                <![CDATA[  and kecheng.kecheng_delete <= #{params.kechengDeleteEnd}   ]]>
+            </if>
+            <if test="params.kechengDelete != null  and params.kechengDelete != '' ">
+                and kecheng.kecheng_delete = #{params.kechengDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JiaoshiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.jiaoshi_uuid_number as jiaoshiUuidNumber
+        ,a.username as username
+        ,a.password as password
+        ,a.jiaoshi_name as jiaoshiName
+        ,a.jiaoshi_photo as jiaoshiPhoto
+        ,a.sex_types as sexTypes
+        ,a.jiaoshi_phone as jiaoshiPhone
+        ,a.jiaoshi_email as jiaoshiEmail
+        ,a.banji_types as banjiTypes
+        ,a.jiaoshi_delete as jiaoshiDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JiaoshiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM jiaoshi  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.jiaoshiUuidNumber != '' and params.jiaoshiUuidNumber != null and params.jiaoshiUuidNumber != 'null' ">
+                and a.jiaoshi_uuid_number like CONCAT('%',#{params.jiaoshiUuidNumber},'%')
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.jiaoshiName != '' and params.jiaoshiName != null and params.jiaoshiName != 'null' ">
+                and a.jiaoshi_name like CONCAT('%',#{params.jiaoshiName},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test=" params.jiaoshiPhone != '' and params.jiaoshiPhone != null and params.jiaoshiPhone != 'null' ">
+                and a.jiaoshi_phone like CONCAT('%',#{params.jiaoshiPhone},'%')
+            </if>
+            <if test=" params.jiaoshiEmail != '' and params.jiaoshiEmail != null and params.jiaoshiEmail != 'null' ">
+                and a.jiaoshi_email like CONCAT('%',#{params.jiaoshiEmail},'%')
+            </if>
+            <if test="params.banjiTypes != null and params.banjiTypes != ''">
+                and a.banji_types = #{params.banjiTypes}
+            </if>
+            <if test="params.jiaoshiDeleteStart != null and params.jiaoshiDeleteStart != ''">
+                <![CDATA[  and a.jiaoshi_delete >= #{params.jiaoshiDeleteStart}   ]]>
+            </if>
+            <if test="params.jiaoshiDeleteEnd != null and params.jiaoshiDeleteEnd != ''">
+                <![CDATA[  and a.jiaoshi_delete <= #{params.jiaoshiDeleteEnd}   ]]>
+            </if>
+             <if test="params.jiaoshiDelete != null and params.jiaoshiDelete != ''">
+                and a.jiaoshi_delete = #{params.jiaoshiDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
